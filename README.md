@@ -31,8 +31,9 @@ Detail endpoint (`GET .../wday/cxs/{tenant}/{site}{externalPath}`): `jobPostingI
 ## Pagination quirks
 
 * `limit` is capped at **20** per request.
-* `total` is only a hint: later pages often return `total: 0`, and some large tenants report `total: 2000` while still serving postings at offset 2,000 and beyond (verified on NVIDIA, 2026-11-03). Page until `jobPostings` comes back empty instead of trusting `total`.
-* Walk `offset` in steps of 20 until `jobPostings` is empty.
+* `total` is only a hint: later pages often return `total: 0`. Offsets past the end do not return an empty list either: the endpoint serves the last page again (NVIDIA returns the same 20 postings for every offset ≥ 2,000, checked 2026-11-03). Stop when a page brings no posting you have not seen.
+* Workday serves at most 2,000 postings per query. Tenants with more open roles need the list split with `appliedFacets` (for example by location) or `searchText`, or their regional career sites read separately.
+* Walk `offset` in steps of 20 until a page repeats or comes back empty.
 * `searchText` and `appliedFacets` (e.g. `{"locationCountry": ["bc33aa3152ec42d4995f4791a106ed09"]}`) filter server-side; facet ids come from the `facets` array of the first response.
 
 ## Python example (stdlib only)
@@ -42,17 +43,18 @@ import json, urllib.request
 
 def workday_jobs(host, tenant, site):
     base = f"https://{host}/wday/cxs/{tenant}/{site}"
-    offset = 0
-    while True:  # "total" is unreliable on Workday, page until an empty response
+    offset, seen = 0, set()
+    while True:  # "total" is unreliable on Workday; stop when a page repeats
         body = json.dumps({"appliedFacets": {}, "limit": 20, "offset": offset, "searchText": ""}).encode()
         req = urllib.request.Request(f"{base}/jobs", data=body, method="POST",
               headers={"Content-Type": "application/json", "Accept": "application/json",
                        "User-Agent": "your-app/1.0 (contact@example.com)"})
         with urllib.request.urlopen(req, timeout=30) as r:
             d = json.load(r)
-        page = d.get("jobPostings") or []
-        if not page:
+        page = [j for j in d.get("jobPostings") or [] if j.get("externalPath") not in seen]
+        if not page:  # empty, or the last page served again: Workday caps a query at 2,000 postings
             return
+        seen.update(j.get("externalPath") for j in page)
         for j in page:
             yield {"id": (j.get("bulletFields") or [None])[0], "title": j["title"],
                    "location": j.get("locationsText"), "posted": j.get("postedOn"),
