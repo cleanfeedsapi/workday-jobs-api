@@ -2,16 +2,14 @@ import json, urllib.request
 
 def workday_jobs(host, tenant, site):
     base = f"https://{host}/wday/cxs/{tenant}/{site}"
-    offset, total = 0, None
-    while total is None or offset < total:
+    offset = 0
+    while True:  # "total" is unreliable on Workday, page until an empty response
         body = json.dumps({"appliedFacets": {}, "limit": 20, "offset": offset, "searchText": ""}).encode()
         req = urllib.request.Request(f"{base}/jobs", data=body, method="POST",
               headers={"Content-Type": "application/json", "Accept": "application/json",
                        "User-Agent": "your-app/1.0 (contact@example.com)"})
         with urllib.request.urlopen(req, timeout=30) as r:
             d = json.load(r)
-        if total is None:
-            total = int(d.get("total") or 0)
         page = d.get("jobPostings") or []
         if not page:
             return
