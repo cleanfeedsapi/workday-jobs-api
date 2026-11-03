@@ -1,4 +1,4 @@
-import json, urllib.request
+import json, sys, urllib.request
 
 def workday_jobs(host, tenant, site):
     base = f"https://{host}/wday/cxs/{tenant}/{site}"
@@ -13,6 +13,8 @@ def workday_jobs(host, tenant, site):
         page = d.get("jobPostings") or []
         if not page:
             return
+        if offset % 500 == 0:
+            print(f"{offset} postings so far...", file=sys.stderr)
         for j in page:
             yield {"id": (j.get("bulletFields") or [None])[0], "title": j["title"],
                    "location": j.get("locationsText"), "posted": j.get("postedOn"),

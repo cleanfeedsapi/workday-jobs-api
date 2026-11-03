@@ -64,7 +64,7 @@ if __name__ == "__main__":
     print(len(rows), "jobs"); print(rows[0])
 ```
 
-See `example.py` for the same with a diff against a previous snapshot.
+See `example.py` for the same with a diff against a previous snapshot. Large tenants take a few minutes: NVIDIA serves more than 3,000 postings at 20 per request, so the example prints progress to stderr every 500 rows.
 
 ## Finding Workday career sites
 
