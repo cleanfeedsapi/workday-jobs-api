@@ -1,6 +1,6 @@
 # Workday Jobs API: how to list every posting from any Workday career site (myworkdayjobs.com) as JSON
 
-Every Workday career site (`https://{tenant}.{wd1..wd5}.myworkdayjobs.com/{site}`) is driven by a **public JSON endpoint** that the page itself calls. No key, no login. This repository documents that endpoint, its POST body, the `offset` pagination quirks, the detail endpoint, and ships a dependency-free Python example.
+Every Workday career site (`https://{tenant}.{wd1..wd5}.myworkdayjobs.com/{site}`) is driven by a **public JSON endpoint** that the page itself calls. No key, no login. This guide documents that endpoint, its POST body, the `offset` pagination quirks, the detail endpoint, and ships a dependency-free Python example.
 
 ## The endpoints
 
@@ -68,7 +68,7 @@ See `example.py` for the same with a diff against a previous snapshot.
 
 ## Finding Workday career sites
 
-Search `site:myworkdayjobs.com`. Large employers on Workday include NVIDIA, Adobe, Salesforce, Dell, Nike, Comcast, Humana and most Fortune 500 HR departments.
+Search `site:myworkdayjobs.com`. Large employers on Workday include NVIDIA, Adobe, Salesforce, Dell, Nike, Comcast, Humana.
 
 ## Common questions
 
