@@ -82,6 +82,8 @@ Search `site:myworkdayjobs.com`. Large employers on Workday include NVIDIA, Adob
 
 If you would rather not run and maintain this yourself, the same logic runs as a pay-per-result Apify Actor by CleanFeeds: https://apify.com/cleanfeedsapi/workday-jobs-feed ($1.50 per 1,000 rows, no subscription, JSON/CSV/Excel export, API, scheduling, n8n/Make/Zapier and MCP integrations). A multi-ATS variant that mixes Greenhouse, Lever, Ashby, Workday, SmartRecruiters and Recruitee boards in one run: https://apify.com/cleanfeedsapi/ats-jobs-feed
 
+The hosted Actor also takes `postedAfter` (an ISO date or `24h` / `7d`), `titleIncludes` and `titleExcludes`. They are applied before the pay-per-result charge, so rows you filter out are never billed. Dates come from the ATS itself, not from when the job was indexed. Workday only publishes "Posted N Days Ago", so `posted_at` has day precision and "30+ days ago" postings carry no date and are excluded when `postedAfter` is set.
+
 
 ## Legal note
 
